@@ -1,0 +1,9 @@
+<resources>
+
+    <string name="app_name">DragListViewSample</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">D-ListView</string>
+    <string name="button_checkarray">Check Array</string>
+    <string name="button_addtest">Add Test</string>
+
+</resources>
