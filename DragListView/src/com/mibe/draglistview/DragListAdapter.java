@@ -16,23 +16,11 @@ import android.widget.TextView;
  */
 public class DragListAdapter<T> extends BaseAdapter {
 	
-	
-	//public String[] items; // = {"sample1", "sample2", "sample3", "sample4"};
-	/*
-	private static final String[] items = { "Android 1.0（APIレベル1）",
-			"Android 1.1（APIレベル2）", "Android 1.5（APIレベル3）",
-			"Android 1.6（APIレベル4）", "Android 2.0（APIレベル5）",
-			"Android 2.0.1（APIレベル6）", "Android 2.1（APIレベル7）",
-			"Android 2.2（APIレベル8）", "Android 2.3（APIレベル9）",
-			"Android 2.3.3（APIレベル10）", "Android 3.0（APIレベル11）",
-			"Android 3.1（APIレベル12）", "Android 3.2（APIレベル13）",
-			"Android 4.0（APIレベル14）", };*/
-	
 	// 表示用アイテムをArray<String>に変更
-	public ArrayList<String> list_short;
+	public ArrayList<String> list_view;
 	
 	// 表示itemと連動して並び替える配列
-	public ArrayList<T> list_long;
+	public ArrayList<T> list_data;
 	
 	private Context context;
 	private int currentPosition = -1;
@@ -44,13 +32,13 @@ public class DragListAdapter<T> extends BaseAdapter {
 	@Override
 	public int getCount() {
 		//return items.length;
-		return list_short.size();
+		return list_view.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
 		//return items[position];
-		return list_short.get(position);
+		return list_view.get(position);
 	}
 
 	@Override
@@ -98,26 +86,26 @@ public class DragListAdapter<T> extends BaseAdapter {
 	 */
 	public void doDrag(int newPosition) {
 		//String item = items[currentPosition];
-		String temp1 = list_short.get(currentPosition);
-		T temp2 = list_long.get(currentPosition);
+		String temp1 = list_view.get(currentPosition);
+		T temp2 = list_data.get(currentPosition);
 		if (currentPosition < newPosition) {
 			// リスト項目を下に移動している場合
 			for (int i = currentPosition; i < newPosition; i++) {
 				//items[i] = items[i + 1];
-				list_short.set(i, list_short.get(i + 1)); //XXX
-				list_long.set(i, list_long.get(i + 1)); //XXX
+				list_view.set(i, list_view.get(i + 1)); //XXX
+				list_data.set(i, list_data.get(i + 1)); //XXX
 			}
 		} else if (currentPosition > newPosition) {
 			// リスト項目を上に移動している場合
 			for (int i = currentPosition; i > newPosition; i--) {
 				//items[i] = items[i - 1];
-				list_short.set(i, list_short.get(i - 1)); //XXX
-				list_long.set(i, list_long.get(i - 1)); //XXX
+				list_view.set(i, list_view.get(i - 1)); //XXX
+				list_data.set(i, list_data.get(i - 1)); //XXX
 			}
 		}
 		//items[newPosition] = item;
-		list_short.set(newPosition, temp1);
-		list_long.set(newPosition, temp2);
+		list_view.set(newPosition, temp1);
+		list_data.set(newPosition, temp2);
 		
 		currentPosition = newPosition;
 	}
@@ -130,21 +118,21 @@ public class DragListAdapter<T> extends BaseAdapter {
 	}
 	
 	/**
-	 * XXX list_longへのアイテム追加
+	 * XXX list_dataへのアイテム追加
 	 */
-	private void addlist_long(T t){
-		list_long.add(t);
+	private void addlist_data(T t){
+		list_data.add(t);
 	}
 	
 	/**
-	 * XXX list_longへの文字列アイテム追加
+	 * XXX list_dataへの文字列アイテム追加
 	 * 型チェックをどうにかしたい
 	 */
-	public void addStringlist_long(String text){
+	public void addStringlist_data(String text){
 		
 		@SuppressWarnings("unchecked") //FIXME 出来れば消したい
 		T t = (T) text;
 		
-		addlist_long(t);
+		addlist_data(t);
 	}
 }

@@ -79,8 +79,8 @@ public class MainActivity extends Activity {
 				new DragListAdapter<String>(this);
 
 		// 表示用配列と連動配列を設定する
-		adapter.list_short = list_view;
-		adapter.list_long = list_data;
+		adapter.list_view = list_view;
+		adapter.list_data = list_data;
 
 		// ソート可能なListViewを作成し配列を読み込ませる
 		listView = (DragListView) findViewById(R.id.dragListView);

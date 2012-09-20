@@ -7,8 +7,6 @@
         android:id="@+id/dragListView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        >
-
-    </com.mibe.draglistview.DragListView>
+        />
 
 </RelativeLayout>
