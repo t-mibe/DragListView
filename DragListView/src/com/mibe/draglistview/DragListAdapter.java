@@ -12,7 +12,7 @@ import android.widget.TextView;
  * 並び替えできるListViewの配列管理
  * 改変元: http://goo.gl/1rkuy
  * @author mibe
- * @param <T> : Array配列に入れる型
+ * @param <T> : Array配列に入れる型，当分Stringのみ考える
  */
 public class DragListAdapter<T> extends BaseAdapter {
 	
@@ -23,21 +23,29 @@ public class DragListAdapter<T> extends BaseAdapter {
 	public ArrayList<T> list_data;
 	
 	private Context context;
+	
+	// 長押しでドラッグモードにしたメンバ番号を保存する（-1で無効）
 	private int currentPosition = -1;
 
+	// 呼び出された時の処理
 	public DragListAdapter(Context context) {
+		
+		// 親のContextを保存する
 		this.context = context;
 	}
 
 	@Override
 	public int getCount() {
-		//return items.length;
 		return list_view.size();
 	}
 
+	/**
+	 * 指定した番号のアイテムを取得する
+	 */
 	@Override
 	public Object getItem(int position) {
-		//return items[position];
+		
+		// 表示用の配列から該当する値を返す
 		return list_view.get(position);
 	}
 
@@ -51,20 +59,31 @@ public class DragListAdapter<T> extends BaseAdapter {
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// View作成
+		
+		// Viewが無い場合作成する
 		if (convertView == null) {
 			convertView = new TextView(context);
 		}
+		
+		// TextViewとして保持しておく
 		TextView textView = (TextView) convertView;
+		
+		// テキストのサイズを指定する
 		textView.setTextSize(30);
 
 		// データ設定
 		textView.setText((String) getItem(position));
 
 		// ドラッグ対象項目は、ListView側で別途描画するため、非表示にする。
+		// ドラッグ対象は別処理でフロートして表示する
 		if (position == currentPosition) {
+			// ドラッグ中の対象が元の位置にいるとき
+			
+			// メンバを非表示にする
 			textView.setVisibility(View.INVISIBLE);
 		} else {
+			// ドラッグ中の対象が
+			
 			textView.setVisibility(View.VISIBLE);
 		}
 		return textView;
@@ -72,41 +91,51 @@ public class DragListAdapter<T> extends BaseAdapter {
 
 	/**
 	 * ドラッグ開始
-	 *
 	 * @param position
 	 */
 	public void startDrag(int position) {
+		
+		// 今選択しているメンバ番号を保存する
 		this.currentPosition = position;
 	}
 
-	/**XXX ArrayListの並び替えを追加
+	/**
 	 * ドラッグに従ってデータを並び替える
-	 *
-	 * @param newPosition
+	 * @param newPosition : 移動先の番号
 	 */
 	public void doDrag(int newPosition) {
-		//String item = items[currentPosition];
-		String temp1 = list_view.get(currentPosition);
-		T temp2 = list_data.get(currentPosition);
+		
+		// 選択した表示テキストを保存する
+		String temp_view = list_view.get(currentPosition);
+		
+		// 連動させるデータを保存する
+		T temp_data = list_data.get(currentPosition);
+		
+		
 		if (currentPosition < newPosition) {
 			// リスト項目を下に移動している場合
+			
+			// 下にあったデータ達を1つ上にずらす
 			for (int i = currentPosition; i < newPosition; i++) {
-				//items[i] = items[i + 1];
-				list_view.set(i, list_view.get(i + 1)); //XXX
-				list_data.set(i, list_data.get(i + 1)); //XXX
+				list_view.set(i, list_view.get(i + 1)); // 表示データ
+				list_data.set(i, list_data.get(i + 1)); // 内部データ
 			}
+			
 		} else if (currentPosition > newPosition) {
 			// リスト項目を上に移動している場合
+			
+			// 上にあったデータ達を1つ下にずらす
 			for (int i = currentPosition; i > newPosition; i--) {
-				//items[i] = items[i - 1];
-				list_view.set(i, list_view.get(i - 1)); //XXX
-				list_data.set(i, list_data.get(i - 1)); //XXX
+				list_view.set(i, list_view.get(i - 1)); // 表示データ
+				list_data.set(i, list_data.get(i - 1)); // 内部データ
 			}
 		}
-		//items[newPosition] = item;
-		list_view.set(newPosition, temp1);
-		list_data.set(newPosition, temp2);
 		
+		// 移動先に保存していたデータを書き込む
+		list_view.set(newPosition, temp_view);
+		list_data.set(newPosition, temp_data);
+		
+		// 選択している場所を移動先に変更する
 		currentPosition = newPosition;
 	}
 
@@ -114,6 +143,8 @@ public class DragListAdapter<T> extends BaseAdapter {
 	 * ドラッグ終了
 	 */
 	public void stopDrag() {
+		
+		// ドラッグ中のメンバ番号を消去する
 		this.currentPosition = -1;
 	}
 	

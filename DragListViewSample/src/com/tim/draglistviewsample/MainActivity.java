@@ -54,12 +54,15 @@ public class MainActivity extends Activity {
 
 	/**
 	 * ArrayListを設定する
+	 * サンプルように2つの配列にダミーデータを入れている
 	 */
 	private void setArrayList(){
 		
+		// 配列の初期化
 		list_view = new ArrayList<String>();
 		list_data = new ArrayList<String>();
 		
+		// ダミーデータの設定
 		for(int i = 0; i < 100; i++){
 			list_view.add("v".concat(Integer.toString(i)));
 			list_data.add("f".concat(Integer.toString(i)));
@@ -70,10 +73,9 @@ public class MainActivity extends Activity {
 	 * DragListViewを作成，表示する
 	 * 		1. Arrayの型を指定する
 	 * 		2. オブジェクトIDを指定する
-	 * 
-	 * @return: 作成したDragListView
 	 */
 	private void setDragListView(){
+		
 		// ソート可能なListAdapterを作成する
 		DragListAdapter<String> adapter = 
 				new DragListAdapter<String>(this);
@@ -112,9 +114,11 @@ public class MainActivity extends Activity {
 	}
 	
 	/**
+	 * 
 	 * アイテムがクリックされた時の処理
 	 * とりあえずトースト表示
 	 * @param position	: 指定したアイテムの順番（数値処理等に使う）
+	 * @return          : クリック処理の成否を返す（とりあえずfalse）
 	 */
 	private boolean onItemClicked(int position){
 
