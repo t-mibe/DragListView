@@ -3,7 +3,7 @@ package com.mibe.draglistview;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.tim.draglistview.R;
+import com.mibe.draglistview.R;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -22,10 +22,10 @@ import android.widget.Toast;
 public abstract class DragListActivity extends Activity{
 
 	// リストビューに表示するテキスト用のArrayList
-	public ArrayList<String> list_view;
+	public ArrayList<String> list_view = new ArrayList<String>();
 
 	// 表示用リストと連動してソートされるデータ用のArrayList
-	public ArrayList<String> list_data;
+	public ArrayList<String> list_data = new ArrayList<String>();
 
 	// 表示するソート可能なListView
 	DragListView listView;
@@ -43,7 +43,7 @@ public abstract class DragListActivity extends Activity{
 		// 初回起動時のみ行う処理
 		if(savedInstanceState == null){
 			// 配列の内容を初期設定する
-			initArrayList();
+			setArrayList();
 
 			// DragListViewを作成，表示する
 			setDragListView();
@@ -80,12 +80,18 @@ public abstract class DragListActivity extends Activity{
 	//////////////////////
 	// DragListView関連 //
 	//////////////////////
+	
+	// 配列の内容を初期化する
+	public void initArrayList(){
+		list_view = new ArrayList<String>();
+		list_data = new ArrayList<String>();
+	}
 
 	/**
-	 * 配列の内容を初期設定する
+	 * 配列の内容を設定する
 	 * 処理は子クラスで定義する
 	 */
-	public abstract void initArrayList();
+	public abstract void setArrayList();
 
 	/**
 	 * DragListViewを作成，表示する

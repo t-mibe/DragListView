@@ -1,7 +1,5 @@
 package com.mibe.draglistactivitysample;
 
-import java.util.ArrayList;
-
 import com.mibe.draglistview.DragListActivity;
 
 import android.content.res.Configuration;
@@ -31,12 +29,11 @@ public class MainActivity extends DragListActivity {
 	 * 配列の内容を初期設定する
 	 */
 	@Override
-	public void initArrayList(){
+	public void setArrayList(){
 		// とりあえずダミーデータを配置する
-
+		
 		// 配列の初期化
-		list_view = new ArrayList<String>();
-		list_data = new ArrayList<String>();
+		initArrayList();
 
 		// ダミーデータの登録
 		for(int i = 0; i < 100; i++){
