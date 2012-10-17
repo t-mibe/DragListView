@@ -1,6 +1,7 @@
 package com.mibe.draglistview;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.tim.draglistview.R;
 
@@ -14,9 +15,8 @@ import android.widget.Toast;
 
 /**
  * DragListViewを表示するActivity
- * 現状，データ配列はString固定
+ * 現状，データ配列はbute[]で考える
  * @author mibe
- * @param <T>
  */
 public abstract class DragListActivity extends Activity{
 
@@ -24,10 +24,14 @@ public abstract class DragListActivity extends Activity{
 	public ArrayList<String> list_view;
 
 	// 表示用リストと連動してソートされるデータ用のArrayList
-	public ArrayList<Object> list_data;
+	public ArrayList<byte[]> list_data;
 
 	// 表示するソート可能なListView
 	DragListView listView;
+
+	//////////////////////////////
+	// Activityクラスのメソッド //
+	//////////////////////////////
 
 	// 起動時の処理
 	@Override
@@ -35,12 +39,46 @@ public abstract class DragListActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// 配列の内容を初期設定する
-		initArrayList();
+		// 初回起動時のみ行う処理
+		if(savedInstanceState == null){
+			// 配列の内容を初期設定する
+			initArrayList();
 
-		// DragListViewを作成，表示する
-		setDragListView();
+			// DragListViewを作成，表示する
+			setDragListView();
+		}
 	}
+
+	// Bundleに状態を保存
+	@Override  
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		// 配列の内容をBundleに保存する
+		saveArrayList(outState);
+		
+		// スクロール位置を取得する
+		DragListView dlv = (DragListView)findViewById(R.id.dragListView);
+		int position = dlv.getFirstVisiblePosition();
+		outState.putInt("DLV_position", position);
+	}
+
+	@Override  
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+
+		// 配列の内容をBundleから復元して表示する
+		loadArrayList(savedInstanceState);
+		
+		// スクロール位置を復元する
+		int position = savedInstanceState.getInt("DLV_position");
+		DragListView dlv = (DragListView)findViewById(R.id.dragListView);
+		dlv.setSelectionFromTop(position, 0);
+	}
+
+	//////////////////////
+	// DragListView関連 //
+	//////////////////////
 
 	/**
 	 * 配列の内容を初期設定する
@@ -56,8 +94,7 @@ public abstract class DragListActivity extends Activity{
 	public void setDragListView(){
 
 		// ソート可能なListAdapterを作成する
-		DragListAdapter<Object> adapter = 
-				new DragListAdapter<Object>(this);
+		DragListAdapter<byte[]> adapter = new DragListAdapter<byte[]>(this);
 
 		// 表示用配列と連動配列を設定する
 		adapter.list_view = list_view;
@@ -74,6 +111,58 @@ public abstract class DragListActivity extends Activity{
 
 		// DragListViewのアイテムがクリックされた時の処理を登録する
 		setDragListViewClickListener();
+	}
+
+	/**
+	 * 配列の内容をBundleに保存する
+	 * @param bundle
+	 */
+	private void saveArrayList(Bundle bundle){
+
+		// 表示する配列をString[]形式にする
+		String[] str_view = list_view.toArray(new String[0]);
+		bundle.putStringArray("DLA_list_view", str_view);
+
+		// 配列の長さを取得する
+		int len = list_data.size();
+
+		// 連動する配列を1つずつ保存する
+		for(int i = 0; i < len; i++){
+
+			// 該当するデータ配列の内容を保存する
+			byte[] data = list_data.get(i);
+			bundle.putByteArray("DLA_list_data_".concat(Integer.toString(i)), data);
+		}
+	}
+
+	/**
+	 * 配列の内容をBundleから復元して表示する
+	 * @param bundle
+	 */
+	private void loadArrayList(Bundle bundle){
+
+		// 表示する配列をString[]形式で取得する
+		String[] str_view = bundle.getStringArray("DLA_list_view");
+
+		// String[]形式をArrayListに変換する
+		list_view = new ArrayList<String>(Arrays.asList(str_view));
+
+		// データ配列を初期化する
+		list_data = new ArrayList<byte[]>();
+
+		// 配列の長さを取得する
+		int len = list_view.size();
+
+		// 連動する配列の情報を1つずつ取得する
+		for(int i = 0; i < len; i++){
+
+			// 該当するデータ配列の内容を取得する
+			byte[] data =bundle.getByteArray("DLA_list_data_".concat(Integer.toString(i)));
+			list_data.add(data);
+		}
+		
+		// DragListViewを作成，表示する
+		setDragListView();
 	}
 
 	/**
@@ -100,9 +189,9 @@ public abstract class DragListActivity extends Activity{
 	 */
 	public abstract boolean onItemClicked(int position);
 
-	///////////////////////////
-	// メニュー関連 ここから //
-	///////////////////////////
+	//////////////////
+	// メニュー関連 //
+	//////////////////
 
 	/**
 	 * メニュー生成

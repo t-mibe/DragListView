@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.mibe.draglistview.DragListActivity;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -19,7 +20,13 @@ public class MainActivity extends DragListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	}
-	
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig){
+		Toast.makeText(this, "ori", Toast.LENGTH_SHORT).show();
+		super.onConfigurationChanged(newConfig);
+	}
+
 	/**
 	 * 配列の内容を初期設定する
 	 */
@@ -29,15 +36,15 @@ public class MainActivity extends DragListActivity {
 
 		// 配列の初期化
 		list_view = new ArrayList<String>();
-		list_data = new ArrayList<Object>();
+		list_data = new ArrayList<byte[]>();
 
 		// ダミーデータの登録
 		for(int i = 0; i < 100; i++){
 			list_view.add("view_".concat(Integer.toString(i)));
-			list_data.add("data_".concat(Integer.toString(i)));
+			list_data.add("data_".concat(Integer.toString(i)).getBytes());
 		}
 	}
-	
+
 	/**
 	 * アイテムがクリックされた時の処理
 	 * @param position	: 指定したアイテムの順番（数値処理等に使う）
@@ -45,9 +52,9 @@ public class MainActivity extends DragListActivity {
 	 */
 	@Override
 	public boolean onItemClicked(int position){
-		
+
 		// とりあえずトースト出力
-		String data = (String)list_data.get(position);
+		String data = new String(list_data.get(position));
 		Toast.makeText(this, data, Toast.LENGTH_LONG).show();
 
 		return false;
