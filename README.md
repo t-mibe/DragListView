@@ -1,6 +1,6 @@
 DragListView
 ============
-並び替えができるListView
+並び替えができるListView  
 
 改変元: http://goo.gl/1rkuy
 
