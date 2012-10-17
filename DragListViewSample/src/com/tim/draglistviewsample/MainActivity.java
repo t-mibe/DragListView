@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
 	// 表示するソート可能なListView
 	DragListView listView;
 
+	// 起動時の処理
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,24 +45,24 @@ public class MainActivity extends Activity {
 
 		// ArrayListを設定する
 		setArrayList();
-		
+
 		// DragListViewを作成し表示する
 		setDragListView();
-	
+
 		// DragListViewのアイテムがクリックされた時の処理を登録する
 		setDragListViewClickListener();
 	}
 
 	/**
 	 * ArrayListを設定する
-	 * サンプルように2つの配列にダミーデータを入れている
+	 * サンプル用に2つの配列にダミーデータを入れている
 	 */
 	private void setArrayList(){
-		
+
 		// 配列の初期化
 		list_view = new ArrayList<String>();
 		list_data = new ArrayList<String>();
-		
+
 		// ダミーデータの設定
 		for(int i = 0; i < 100; i++){
 			list_view.add("v".concat(Integer.toString(i)));
@@ -75,7 +76,7 @@ public class MainActivity extends Activity {
 	 * 		2. オブジェクトIDを指定する
 	 */
 	private void setDragListView(){
-		
+
 		// ソート可能なListAdapterを作成する
 		DragListAdapter<String> adapter = 
 				new DragListAdapter<String>(this);
@@ -93,7 +94,7 @@ public class MainActivity extends Activity {
 		// ListViewと配列管理アダプタを接続する
 		listView.setAdapter(adapter);
 	}
-	
+
 
 	/**
 	 * DragListViewのアイテムがクリックされた時の処理を登録する
@@ -112,7 +113,7 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+
 	/**
 	 * 
 	 * アイテムがクリックされた時の処理
@@ -124,7 +125,7 @@ public class MainActivity extends Activity {
 
 		// 成否保存用
 		boolean result = false;
-		
+
 		// トースト出力
 		// ArrayList.get(id)を利用して配列から文字列を取得する
 		// 今回は追従配列から取得してみた
