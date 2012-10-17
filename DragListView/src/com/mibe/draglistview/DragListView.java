@@ -1,8 +1,11 @@
 package com.mibe.draglistview;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
-//import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,9 +20,10 @@ import android.widget.ListView;
  *
  */
 public class DragListView extends ListView implements AdapterView.OnItemLongClickListener {
-	
-	//private static final String TAG = "DragListView";
-	
+
+	@SuppressWarnings("unused")
+	private static final String TAG = "DragListView";
+
 	private static final int SCROLL_SPEED_FAST = 25;
 	private static final int SCROLL_SPEED_SLOW = 8;
 
@@ -27,12 +31,26 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 	private PopupView popupView;
 	private MotionEvent downEvent;
 	private boolean dragging = false;
-	
+
 	private int view_left = 0;
 	private int view_top = 0;
+
+	// ドラッグ中のスクロール制御用ハンドラ
+	private Handler handler = new Handler();
+
+	// ドラッグ中のスクロール速度
+	private int speed = 0;
 	
+	// タッチイベントの一時保存
+	private MotionEvent me_temp;
+	
+
 	public DragListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		
+		// ドラッグ中のスクロールイベント設定
+		setDragScrollSchedule();
+
 		popupView = new PopupView(context);
 		setOnItemLongClickListener(this);
 	}
@@ -45,21 +63,21 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		super.setAdapter(adapter);
 		this.adapter = (DragListAdapter<?>) adapter;
 	}
-	
+
 	/**
 	 * レンダリング終了後にViewのスクリーン座標を取得する
 	 */
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus){
 		super.onWindowFocusChanged(hasWindowFocus);
-		
+
 		int[] location = new int[2];
 		getLocationOnScreen(location);
-		
+
 		view_left = location[0];
 		view_top = location[1];
 	}
-	
+
 	/**
 	 * 長押しイベント<br>
 	 * ドラッグを開始する。当イベントの前に、タッチイベント（ACTION_DOWN）が呼ばれている前提。
@@ -76,6 +94,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		
 		boolean result = false;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
@@ -90,15 +109,39 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 			result = stopDrag(event);
 			break;
 		}
+		
+		// イベント内容を一時保存する
+		me_temp = createTempMotionEvent(event);
 
 		// イベントを処理していなければ、親のイベント処理を呼ぶ。
 		// 長押しイベントを発生させるため、ACTION_DOWNイベント時は、親のイベント処理を呼ぶ。
 		if (result == false) {
 			result = super.onTouchEvent(event);
 		}
-		
+
 		//Log.d("test", "onTouchEvent");
 		return result;
+	}
+	
+	/**
+	 * イベント内容を一時保存する
+	 * dxとdyがなくなっているのがポイント
+	 * @param e
+	 * @return
+	 */
+	private MotionEvent createTempMotionEvent(MotionEvent event){
+		
+		// 必要な値を取得する
+		long downTime = event.getDownTime();
+		long eventTime = event.getEventTime();
+		int action = event.getAction();
+		int metastate = event.getMetaState();
+		
+		// タッチ位置の座標を修正
+		float x = event.getX();
+		float y = event.getY();
+		
+		return MotionEvent.obtain(downTime, eventTime, action, x, y, metastate);
 	}
 
 	/**
@@ -113,13 +156,13 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 	 */
 	private boolean startDrag(MotionEvent event) {
 		//Log.v(TAG, "startDrag");
-		
+
 		dragging = false;
-		
+
 		// スクリーン座標を取得
 		int x = (int) event.getX();
 		int y = (int) event.getY();
-		
+
 		//Log.d(TAG, "x = " + x + ", y = " + y);
 
 		// イベントから position を取得
@@ -129,13 +172,13 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		if (position < 0) {
 			return false;
 		}
-		
+
 
 		// アダプターにドラッグ対象項目位置を渡す
 		adapter.startDrag(position);
-		
+
 		// ドラッグ中のリスト項目の描画を開始する
-		 popupView.startDrag(x , y, getChildByIndex(position));
+		popupView.startDrag(x , y, getChildByIndex(position));
 
 		// リストビューを再描画する
 		invalidateViews();
@@ -150,11 +193,11 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 	 */
 	private boolean doDrag(MotionEvent event) {
 		//Log.v(TAG, "doDrag");
-		
+
 		if (!dragging) {
 			return false;
 		}
-		
+
 		int x = (int) event.getX();
 		int y = (int) event.getY();
 		int position = pointToPosition(x, y);
@@ -166,7 +209,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 			// アダプターのデータを並び替える
 			adapter.doDrag(position);
 		}
-		
+
 		//XXX スクリーン座標にして送る
 		// ドラッグ中のリスト項目の描画を更新する
 		//popupView.doDrag(x, y);
@@ -178,6 +221,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		// 必要あればスクロールさせる
 		// 注意：invalidateViews()後に処理しないとスクロールしなかった
 		setScroll(event);
+		
 		return true;
 	}
 
@@ -188,6 +232,9 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		if (!dragging) {
 			return false;
 		}
+
+		// スクロールの速度を0に戻す
+		speed = 0;
 
 		// アダプターにドラッグ対象なしを渡す
 		adapter.stopDrag();
@@ -202,7 +249,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 	}
 
 	/**
-	 * 必要あればスクロールさせる。<br>
+	 * 必要あればスクロールさせる。
 	 * 座標の計算が煩雑になるので当Viewのマージンとパディングはゼロの前提とする。
 	 */
 	private void setScroll(MotionEvent event) {
@@ -212,7 +259,6 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		int harfWidth = getWidth() / 2;
 
 		// スクロール速度の決定
-		int speed;
 		int fastBound = height / 9;
 		int slowBound = height / 4;
 		if (event.getEventTime() - event.getDownTime() < 500) {
@@ -225,6 +271,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 					: SCROLL_SPEED_SLOW;
 		} else {
 			// スクロールなしのため処理終了
+			speed = 0;
 			return;
 		}
 
@@ -245,6 +292,33 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		}
 	}
 
+	// ドラッグ中のスクロールイベント設定
+	private void setDragScrollSchedule(){
+		// タイマーを生成
+		Timer timer = new Timer(false);
+		// スケジュールを設定
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if(speed == 0) return;
+				
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						// スクロールの定期イベントを実行する
+						dragScrollSchedule();
+					}
+				});
+			}
+		}, 0, 33);
+	}
+	
+	// ドラッグ中のスクロールイベント内容
+	private void dragScrollSchedule(){
+		
+		onTouchEvent(me_temp);
+	}
+
 	/**
 	 * MotionEvent から position を取得する
 	 */
@@ -254,7 +328,7 @@ public class DragListView extends ListView implements AdapterView.OnItemLongClic
 		 * pointToPositionはローカル座標（枠内の座標）で指定する
 		 * 対してgetXやgetRawXはスクリーン座標っぽい
 		 */
-		
+
 		//Log.d("test", "x = " + event.getX() + ", y = " + event.getY());
 		//return pointToPosition((int) event.getX(), (int) event.getY());
 		return pointToPosition((int) event.getRawX() - view_left, (int) event.getRawY() - view_top);
