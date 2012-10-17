@@ -209,9 +209,6 @@ public abstract class DragListActivity extends Activity{
 		if(id == R.id.menu_add){
 			Toast.makeText(this, getString(R.string.menu_add), Toast.LENGTH_SHORT).show();
 			ret = true;
-		} else if(id == R.id.menu_settings){
-			Toast.makeText(this, getString(R.string.menu_settings), Toast.LENGTH_SHORT).show();
-			ret = true;
 		} else {
 			ret = super.onOptionsItemSelected(item);
 		}
