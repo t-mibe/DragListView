@@ -15,7 +15,8 @@ import android.widget.Toast;
 
 /**
  * DragListViewを表示するActivity
- * 現状，データ配列はbute[]で考える
+ * 現状，データ配列はStringで考える
+ * byteとかにしたい場合はDragListViewを使う事
  * @author mibe
  */
 public abstract class DragListActivity extends Activity{
@@ -24,7 +25,7 @@ public abstract class DragListActivity extends Activity{
 	public ArrayList<String> list_view;
 
 	// 表示用リストと連動してソートされるデータ用のArrayList
-	public ArrayList<byte[]> list_data;
+	public ArrayList<String> list_data;
 
 	// 表示するソート可能なListView
 	DragListView listView;
@@ -94,7 +95,7 @@ public abstract class DragListActivity extends Activity{
 	public void setDragListView(){
 
 		// ソート可能なListAdapterを作成する
-		DragListAdapter<byte[]> adapter = new DragListAdapter<byte[]>(this);
+		DragListAdapter<String> adapter = new DragListAdapter<String>(this);
 
 		// 表示用配列と連動配列を設定する
 		adapter.list_view = list_view;
@@ -119,20 +120,13 @@ public abstract class DragListActivity extends Activity{
 	 */
 	private void saveArrayList(Bundle bundle){
 
-		// 表示する配列をString[]形式にする
+		// 表示する配列をString[]形式にして保存する
 		String[] str_view = list_view.toArray(new String[0]);
 		bundle.putStringArray("DLA_list_view", str_view);
-
-		// 配列の長さを取得する
-		int len = list_data.size();
-
-		// 連動する配列を1つずつ保存する
-		for(int i = 0; i < len; i++){
-
-			// 該当するデータ配列の内容を保存する
-			byte[] data = list_data.get(i);
-			bundle.putByteArray("DLA_list_data_".concat(Integer.toString(i)), data);
-		}
+		
+		// データ配列をString[]形式にして保存する
+		String[] str_data = list_data.toArray(new String[0]);
+		bundle.putStringArray("DLA_list_data", str_data);
 	}
 
 	/**
@@ -146,20 +140,13 @@ public abstract class DragListActivity extends Activity{
 
 		// String[]形式をArrayListに変換する
 		list_view = new ArrayList<String>(Arrays.asList(str_view));
+		
 
-		// データ配列を初期化する
-		list_data = new ArrayList<byte[]>();
+		// データ配列をString[]形式で取得する
+		String[] str_data = bundle.getStringArray("DLA_list_data");
 
-		// 配列の長さを取得する
-		int len = list_view.size();
-
-		// 連動する配列の情報を1つずつ取得する
-		for(int i = 0; i < len; i++){
-
-			// 該当するデータ配列の内容を取得する
-			byte[] data =bundle.getByteArray("DLA_list_data_".concat(Integer.toString(i)));
-			list_data.add(data);
-		}
+		// String[]形式をArrayListに変換する
+		list_data = new ArrayList<String>(Arrays.asList(str_data));
 		
 		// DragListViewを作成，表示する
 		setDragListView();

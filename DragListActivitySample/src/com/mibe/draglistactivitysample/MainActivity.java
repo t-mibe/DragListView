@@ -36,12 +36,12 @@ public class MainActivity extends DragListActivity {
 
 		// 配列の初期化
 		list_view = new ArrayList<String>();
-		list_data = new ArrayList<byte[]>();
+		list_data = new ArrayList<String>();
 
 		// ダミーデータの登録
 		for(int i = 0; i < 100; i++){
 			list_view.add("view_".concat(Integer.toString(i)));
-			list_data.add("data_".concat(Integer.toString(i)).getBytes());
+			list_data.add("data_".concat(Integer.toString(i)));
 		}
 	}
 
