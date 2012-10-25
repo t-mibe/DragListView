@@ -42,6 +42,7 @@ public abstract class DragListActivity extends Activity{
 
 		// 初回起動時のみ行う処理
 		if(savedInstanceState == null){
+			
 			// 配列の内容を初期設定する
 			setArrayList();
 
@@ -70,6 +71,9 @@ public abstract class DragListActivity extends Activity{
 
 		// 配列の内容をBundleから復元して表示する
 		loadArrayList(savedInstanceState);
+
+		// DragListViewを作成，表示する
+		setDragListView();
 		
 		// スクロール位置を復元する
 		int position = savedInstanceState.getInt("DLV_position");
@@ -124,38 +128,58 @@ public abstract class DragListActivity extends Activity{
 	 * 配列の内容をBundleに保存する
 	 * @param bundle
 	 */
-	private void saveArrayList(Bundle bundle){
+	public void saveArrayList(Bundle bundle){
 
-		// 表示する配列をString[]形式にして保存する
-		String[] str_view = list_view.toArray(new String[0]);
-		bundle.putStringArray("DLA_list_view", str_view);
+		// 表示する配列を保存する
+		saveStringArray(bundle, "DLA_list_view", list_view);
 		
-		// データ配列をString[]形式にして保存する
-		String[] str_data = list_data.toArray(new String[0]);
-		bundle.putStringArray("DLA_list_data", str_data);
+		// データ配列を保存する
+		saveStringArray(bundle, "DLA_list_data", list_data);
+	}
+	
+	/**
+	 * ArrayList<String>をString[]に変換して保存する
+	 * @param bundle : 保存するBundle
+	 * @param key    : 値を識別するキー
+	 * @param list   : 保存するArrayList<String>
+	 */
+	public void saveStringArray(Bundle bundle, String key, ArrayList<String> list){
+		
+		// 表示する配列をString[]形式に変換する
+		String[] value = list.toArray(new String[0]);
+		
+		// キーを指定して保存する
+		bundle.putStringArray(key, value);
 	}
 
 	/**
 	 * 配列の内容をBundleから復元して表示する
 	 * @param bundle
 	 */
-	private void loadArrayList(Bundle bundle){
-
-		// 表示する配列をString[]形式で取得する
-		String[] str_view = bundle.getStringArray("DLA_list_view");
-
-		// String[]形式をArrayListに変換する
-		list_view = new ArrayList<String>(Arrays.asList(str_view));
+	public void loadArrayList(Bundle bundle){
 		
-
-		// データ配列をString[]形式で取得する
-		String[] str_data = bundle.getStringArray("DLA_list_data");
-
-		// String[]形式をArrayListに変換する
-		list_data = new ArrayList<String>(Arrays.asList(str_data));
+		// 表示する配列を取得する
+		list_view = loadStringArray(bundle, "DLA_list_view");
 		
-		// DragListViewを作成，表示する
-		setDragListView();
+		// データ配列を取得する
+		list_data = loadStringArray(bundle, "DLA_list_data");
+	}
+	
+	/**
+	 * 指定したキーのString[]配列を取得し，ArrayList<String>に変換する
+	 * @param bundle
+	 * @param key
+	 * @return
+	 */
+	public ArrayList<String> loadStringArray(Bundle bundle, String key){
+		
+		// 指定した配列をString[]形式で取得する
+		String[] value = bundle.getStringArray(key);
+		
+		// String[]形式をArrayListに変換する
+		ArrayList<String> result = new ArrayList<String>(Arrays.asList(value));
+		
+		return result;
 	}
 
 	/**
